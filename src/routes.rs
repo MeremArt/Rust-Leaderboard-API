@@ -1,16 +1,8 @@
 use actix_web::{get,post, delete,web,HttpResponse,Responder};
-
 use uuid::Uuid;
-use crate::{models::PlayerScore, state::AppState, error::ApiError};
+use crate::{models::PlayerScore, models::NewScore, state::AppState, error::ApiError};
 use serde::Deserialize;
 use serde_json::json;
-
-#[derive(Deserialize)]
-pub struct NewScore {
-    pub name: String,
-    pub score: u32,
-}
-
 
 
 #[post("/leaderboard")]
