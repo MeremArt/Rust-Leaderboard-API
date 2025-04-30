@@ -1,9 +1,9 @@
 
 use actix_web::{get, web, App, HttpServer};
-use monogodb::{Client, options::ClientOptions};
-use std::sync::Mutex;
+use mongodb::{Client, options::ClientOptions};
+
 use crate::state::AppState;
-use crate::routes::{add_score, get_top, delete_score};
+use crate::routes::{add_score, get_top, delete_score, get_all};
 use std::env;
 use dotenvy::dotenv;
 
@@ -11,6 +11,7 @@ mod state;
 mod models;
 mod routes;
 mod error;
+mod services;
 
 
 #[get("/")]
@@ -32,8 +33,7 @@ async fn main() -> std::io::Result<()> {
     let collection = db.collection::<models::PlayerScore>("leaderboard");
 
     let app_data = web::Data::new(AppState {
-    
-        leaderboard_collection: Mutex::new(vec![]),
+        leaderboard_collection: collection,
     });
     let port = std::env::var("PORT")
     .unwrap_or_else(|_| "8080".into())    
@@ -46,6 +46,7 @@ async fn main() -> std::io::Result<()> {
            .service(index)
             .service(add_score)
             .service(get_top)
+            .service(get_all)
             .service(delete_score)
     })
     .bind(("127.0.0.1", port))?

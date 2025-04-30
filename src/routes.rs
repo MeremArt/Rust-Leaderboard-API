@@ -1,67 +1,41 @@
 use actix_web::{get,post, delete,web,HttpResponse,Responder};
-use uuid::Uuid;
-use crate::{models::PlayerScore, models::NewScore, state::AppState, error::ApiError};
-use serde::Deserialize;
-use serde_json::json;
 
+use crate::{ models::NewScore, state::AppState, error::ApiError ,services};
+
+
+
+#[get("/leaderboard")]
+async fn get_all(
+    data: web::Data<AppState>,
+) -> Result<impl Responder, ApiError> {
+    let players = services::get_all_players(&data.leaderboard_collection).await?;
+    Ok(HttpResponse::Ok().json(players))
+}
 
 #[post("/leaderboard")]
 async fn add_score(
     data: web::Data<AppState>,
     param: web::Json<NewScore>,
-) -> impl Responder {
-
-    if param.name.trim().is_empty() {
-        return Err(ApiError::BadRequest);
-    }
-    let new_player = PlayerScore {
-        id: Uuid::new_v4().to_string(),
-        name: param.name.clone(),
-        score: param.score as i32,
-    };
-
-    let mut leaderboard = data.leaderboard.lock().unwrap();
-    leaderboard.push(new_player);
-
-    Ok(HttpResponse::Created().json(json!({ "message": "Score added!" })))
-
+) -> Result<impl Responder, crate::error::ApiError> {
+    let new_player = services::add_player(&data.leaderboard_collection, param.into_inner()).await?;
+    Ok(HttpResponse::Created().json(new_player))
 }
+
+#[delete("/leaderboard/{id}")]
+async fn delete_score(
+    data: web::Data<AppState>,
+    path: web::Path<String>,
+) -> Result<impl Responder, crate::error::ApiError> {
+    services::delete_player(&data.leaderboard_collection, path.into_inner()).await?;
+    Ok(HttpResponse::Ok().json(serde_json::json!({ "message": "Player deleted successfully." })))
+}
+
 #[get("/leaderboard/top/{count}")]
 async fn get_top(
     data: web::Data<AppState>,
     path: web::Path<usize>,
-) -> impl Responder {
+) -> Result<impl Responder, ApiError> {
     let count = path.into_inner();
-    let leaderboard = match data.leaderboard.lock() {
-        Ok(guard) => guard,
-        Err(_) => return Err(ApiError::InternalError),
-    };
-    
-
-    let mut sorted = leaderboard.clone();
-    sorted.sort_by(|a, b| b.score.cmp(&a.score));
-
-    let top_players: Vec<_> = sorted.into_iter().take(count).collect();
-
+    let top_players = services::get_top_players(&data.leaderboard_collection, count).await?;
     Ok(HttpResponse::Ok().json(top_players))
-}
-
-#[delete(
-    "/leaderboard/{id}"
-)]
-
-async fn delete_score( data:web::Data<AppState>, path:web::Path<String>) -> impl Responder {
-let mut leaderboard = data.leaderboard.lock().unwrap();
-let id = path.into_inner();
-leaderboard.retain(|player| player.id != id);
-let original_len = leaderboard.len();
-if leaderboard.len() == original_len {
-    // No player was deleted
-    return Err(ApiError::NotFound);
-}
-
-*leaderboard = leaderboard.iter().filter(|&x| x.id != id).cloned().collect();
-Ok(HttpResponse::Ok().json(json!({ "message": "Player deleted successfully" })))
-
-
 }

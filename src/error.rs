@@ -1,4 +1,3 @@
-// src/errors.rs
 use actix_web::{HttpResponse, ResponseError};
 use derive_more::Display;
 use serde_json::json;
@@ -18,7 +17,7 @@ impl ResponseError for ApiError {
         match self {
             ApiError::NotFound => HttpResponse::NotFound().json(json!({ "error": "Player not found." })),
             ApiError::BadRequest => HttpResponse::BadRequest().json(json!({ "error": "Invalid input." })),
-            ApiError::InternalError => HttpResponse::InternalServerError().json(json!({ "error": "Something went wrong." })),
+            ApiError::InternalError => HttpResponse::InternalServerError().json(json!({ "error": "Internal server error." })),
         }
     }
 }
