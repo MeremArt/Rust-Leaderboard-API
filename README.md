@@ -1,125 +1,153 @@
-# Rust Leaderboard API
+```md
+# 🏆 Leaderboard API (Rust + Actix-Web + MongoDB)
 
-A high-performance RESTful API for managing game leaderboards built with Rust, Actix-Web, and MongoDB.
+A blazing fast RESTful API for managing a game leaderboard built in **Rust** using **Actix-Web**, **MongoDB**, and **Tokio** runtime.
 
-## Features
+## ✨ Features
 
-- **Fast Performance**: Built with Rust and Actix-Web for high throughput and low latency
-- **MongoDB Integration**: Persistent storage with MongoDB for reliable data management
-- **RESTful API**: Clean API endpoints for leaderboard operations
-- **Error Handling**: Comprehensive error handling with custom error types
-- **Asynchronous Design**: Non-blocking I/O operations for optimal performance
+- ✅ Add player scores
+- ✅ Get all players
+- ✅ Get top N players sorted by score
+- ✅ Delete player by ID
+- ✅ MongoDB-backed persistence
+- ✅ Full JSON API
+- ✅ `.env` configuration
+- ✅ Modular service & route separation
 
-## API Endpoints
+---
 
-| Method | Endpoint                   | Description                 |
-| ------ | -------------------------- | --------------------------- |
-| GET    | `/`                        | Health check endpoint       |
-| POST   | `/leaderboard`             | Add a new player score      |
-| GET    | `/leaderboard/top/{count}` | Get top N players by score  |
-| DELETE | `/leaderboard/{id}`        | Delete a player score by ID |
+## 🚀 Tech Stack
 
-## Installation
+- [Rust](https://www.rust-lang.org/)
+- [Actix-Web](https://actix.rs/)
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- [Tokio](https://tokio.rs/)
+- [Serde](https://serde.rs/)
+- [dotenvy](https://docs.rs/dotenvy/)
 
-### Prerequisites
+---
 
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
-- [MongoDB](https://www.mongodb.com/try/download/community) (4.4+)
+## 📁 Project Structure
+```
 
-### Setup
+src/
+├── main.rs # App entry point
+├── models.rs # Data models
+├── routes.rs # Actix route handlers
+├── services.rs # Business logic
+├── state.rs # Shared MongoDB connection
+├── errors.rs # Central error handling
+.env # Environment variables
 
-1. Clone the repository:
+````
 
-   ```
-   git clone https://github.com/meremart/rust-leaderboard-api.git
-   cd rust-leaderboard-api
-   ```
+---
 
-2. Create a `.env` file in the project root:
+## 🧪 API Endpoints
 
-   ```
-   MONGODB_URI=mongodb://localhost:27017
-   MONGODB_DATABASE=leaderboard_db
-   PORT=8000
-   ```
+### ➕ Add a Player
+`POST /leaderboard`
+```json
+{
+  "name": "Tim",
+  "score": 1500
+}
+````
 
-3. Build and run the project:
-   ```
-   cargo build
-   cargo run
-   ```
+### 📋 Get All Players
 
-The server will start on `http://127.0.0.1:8000`.
+`GET /leaderboard`
 
-## Usage Examples
+### 🥇 Get Top N Players
 
-### Add a new score
+`GET /leaderboard/top/{count}`  
+Example: `/leaderboard/top/5`
+
+### ❌ Delete a Player
+
+`DELETE /leaderboard/{id}`
+
+---
+
+## 🔧 Setup & Run
+
+### 1. 📦 Install Rust
 
 ```bash
-curl -X POST http://localhost:8000/leaderboard \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Player1", "score": 1000}'
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-### Get top 5 players
+### 2. 📁 Clone this repo
 
 ```bash
-curl http://localhost:8000/leaderboard/top/5
+git clone https://github.com/your-username/leaderboard-api.git
+cd leaderboard-api
 ```
 
-### Delete a player
+### 3. 📄 Set environment variables
+
+Create a `.env` file in the root:
+
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/?retryWrites=true&w=majority
+MONGO_DB_NAME=leaderboard_db
+PORT=8080
+```
+
+⚠️ Make sure `.env` is in `.gitignore`!
+
+---
+
+### 4. 🚀 Run the API
 
 ```bash
-curl -X DELETE http://localhost:8000/leaderboard/60d21b4667d0d8992e610c85
+cargo run
 ```
 
-## Project Structure
+The server starts on: `http://localhost:8080`
 
-```
-rust-leaderboard-api/
-├── src/
-│   ├── main.rs         # Application entry point
-│   ├── routes.rs       # API route handlers
-│   ├── models.rs       # Data models
-│   ├── state.rs        # Application state
-│   ├── error.rs        # Error handling
-│   └── db.rs           # Database connection and operations
-├── Cargo.toml          # Project dependencies
-├── .env                # Environment variables
-└── README.md           # This file
-```
+---
 
-## Error Handling
+## 🧠 Example Response
 
-The API uses custom error types for consistent error responses:
-
-- `404 Not Found`: When requested resources don't exist
-- `400 Bad Request`: For invalid input data
-- `500 Internal Server Error`: For server-side errors
-
-## Development
-
-### Dependencies
-
-- actix-web: Web framework
-- mongodb: MongoDB driver
-- serde: Serialization/Deserialization
-- tokio: Async runtime
-- uuid: Unique ID generation
-- derive_more: Derive macros for trait implementations
-
-### Testing
-
-Run the test suite with:
-
-```
-cargo test
+```json
+[
+  {
+    "id": "65f1d0c3b0c1f1...",
+    "name": "Alice",
+    "score": 1400
+  },
+  {
+    "id": "65f1d0d5b0c1f2...",
+    "name": "Bob",
+    "score": 1300
+  }
+]
 ```
 
-## License
+---
 
-MIT License
+## ✅ Future Improvements
 
-## Contact
+- 🔒 JWT Authentication
+- 🧾 Pagination support
+- 📊 Score history tracking
+- 🧪 Unit + integration tests
+- 🐳 Dockerized deployment
 
-Create an issue in the GitHub repository for any questions or suggestions.
+---
+
+## 🧑‍💻 Author
+
+Built by [@ugofranklin22](https://github.com/ugofranklin22)  
+Open for feedback, contributions & collabs 🚀
+
+---
+
+## 📜 License
+
+MIT © 2025
+
+```
+
+```
