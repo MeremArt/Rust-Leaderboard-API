@@ -35,12 +35,12 @@ async fn main() -> std::io::Result<()> {
     let client_options = ClientOptions::parse(&mongo_uri).await.unwrap();
     let client = Client::with_options(client_options).unwrap();
     let db = client.database(&db_name);
+    let users_collection = db.collection::<models::User>("users");
     let collection = db.collection::<models::PlayerScore>("leaderboard");
-
     let app_data = web::Data::new(AppState {
         leaderboard_collection: collection,
-      
-        
+        users_collection,
+        jwt_secret,
     });
     let port = std::env::var("PORT")
     .unwrap_or_else(|_| "8080".into())    
