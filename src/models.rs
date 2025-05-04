@@ -13,3 +13,22 @@ pub struct NewScore {
     pub name: String,
     pub score: u32,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct User {
+    pub username: String,
+    pub password_hash: String,
+    pub role: String,  
+}
+
+#[derive(Deserialize,Debug)]
+pub struct UserSignup {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Deserialize,Debug)]
+pub struct UserLogin {
+    pub username: String,
+    pub password: String,
+}

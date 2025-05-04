@@ -1,7 +1,5 @@
 use actix_web::{get,post, delete,web,HttpResponse,Responder};
-
 use crate::{ models::NewScore, state::AppState, error::ApiError ,services};
-
 
 
 #[get("/leaderboard")]
