@@ -1,7 +1,7 @@
 
 use actix_web::{get, web, App, HttpServer};
 use mongodb::{Client, options::ClientOptions};
-
+use actix_cors::Cors;
 use crate::state::AppState;
 use crate::routes::{add_score, get_top, delete_score, get_all};
 use std::env;
@@ -50,6 +50,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(app_data.clone())
+            .wrap(Cors::permissive())
            .service(index)
             .service(add_score)
             .service(get_top)
