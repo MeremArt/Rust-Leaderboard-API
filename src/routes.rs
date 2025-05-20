@@ -1,5 +1,5 @@
 use actix_web::{get,post, delete,web,HttpResponse,Responder};
-use crate::{ models::NewScore, state::AppState, error::ApiError ,services};
+use crate::{ models::{NewScore,UserSignup}, state::AppState, error::ApiError ,services};
 
 
 #[get("/leaderboard")]
@@ -17,6 +17,14 @@ async fn add_score(
 ) -> Result<impl Responder, crate::error::ApiError> {
     let new_player = services::add_player(&data.leaderboard_collection, param.into_inner()).await?;
     Ok(HttpResponse::Created().json(new_player))
+}
+#[post("/signup")]
+async fn signup(
+    data: web::Data<AppState>,
+    info: web::Json<UserSignup>,
+) ->  Result<impl Responder, crate::error::ApiError> {
+    services::signup(&data.users_collection, info.into_inner(), &data.jwt_secret).await?;
+    Ok(HttpResponse::Created().json(serde_json::json!({ "message": "User created" })))
 }
 
 #[delete("/leaderboard/{id}")]

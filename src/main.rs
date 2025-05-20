@@ -2,8 +2,9 @@
 use actix_web::{get, web, App, HttpServer};
 use mongodb::{Client, options::ClientOptions};
 use actix_cors::Cors;
+
 use crate::state::AppState;
-use crate::routes::{add_score, get_top, delete_score, get_all};
+use crate::routes::{add_score, get_top, delete_score, get_all,signup};
 use std::env;
 use dotenvy::dotenv;
 
@@ -57,6 +58,7 @@ async fn main() -> std::io::Result<()> {
             .service(add_score)
             .service(get_top)
             .service(get_all)
+            .service(signup)
             .service(delete_score)
     })
     .bind_rustls(("127.0.0.1", port), load_rustls_config())?
