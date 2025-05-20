@@ -4,13 +4,10 @@ use mongodb::{Client, options::ClientOptions};
 use actix_cors::Cors;
 
 use crate::state::AppState;
-use crate::routes::{add_score, get_top, delete_score, get_all,signup};
+use crate::routes::{add_score, get_top, delete_score, get_all,signup,login};
 use std::env;
 use dotenvy::dotenv;
 
-use rustls::{Certificate, PrivateKey, ServerConfig};
-use std::fs::File;
-use std::io::BufReader;
 
 
 mod state;
@@ -59,6 +56,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_top)
             .service(get_all)
             .service(signup)
+            .service(login)
             .service(delete_score)
     })
     .bind_rustls(("127.0.0.1", port), load_rustls_config())?

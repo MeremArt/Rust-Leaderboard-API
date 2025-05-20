@@ -1,9 +1,9 @@
 use argonautica::{Hasher, Verifier};
-use jwt::{SignWithKey, VerifyWithKey};
+use jwt::SignWithKey;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::collections::BTreeMap;
-use std::time::{SystemTime, UNIX_EPOCH, Duration};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::error::ApiError;
 

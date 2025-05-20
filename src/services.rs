@@ -1,6 +1,6 @@
 
-use crate::models::{NewScore, PlayerScore, UserSignup, User};
-use crate::auth::{hash_password};
+use crate::models::{NewScore, PlayerScore, UserSignup, User, UserLogin};
+use crate::auth::{hash_password, verify_password, create_jwt};
 use crate::error::ApiError;
 use mongodb::bson::doc;
 
@@ -122,3 +122,21 @@ users.insert_one(user,None).await .map_err(|_| ApiError::InternalError)?;
 
 Ok(())
 }
+
+pub async fn login (    users: &Collection<User>,
+    creds: UserLogin,
+    jwt_secret: &str,)-> Result<String,ApiError>{
+        let user = users
+        .find_one(doc! { "username": &creds.username }, None)
+        .await
+        .map_err(|_| ApiError::InternalError)?
+        .ok_or(ApiError::BadRequest)?;
+
+    let is_valid = verify_password(&user.password_hash, &creds.password, jwt_secret)?;
+
+    if !is_valid {
+        return Err(ApiError::BadRequest);
+    }
+
+    create_jwt(&user.username, jwt_secret)
+    }

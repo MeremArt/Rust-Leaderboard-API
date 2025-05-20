@@ -27,6 +27,15 @@ async fn signup(
     Ok(HttpResponse::Created().json(serde_json::json!({ "message": "User created" })))
 }
 
+#[post("/login")]
+pub async fn login(
+    data: web::Data<AppState>,
+    creds: web::Json<UserLogin>,
+) -> Result<impl Responder, ApiError> {
+    let token = services::auth::login(&data.users_collection, creds.into_inner(), &data.jwt_secret).await?;
+    Ok(HttpResponse::Ok().json(serde_json::json!({ "token": token })))
+}
+
 #[delete("/leaderboard/{id}")]
 async fn delete_score(
     data: web::Data<AppState>,
