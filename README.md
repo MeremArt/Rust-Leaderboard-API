@@ -1,153 +1,193 @@
-```md
-# 🏆 Leaderboard API (Rust + Actix-Web + MongoDB)
+Absolutely! Here's an updated `README.md` for your [Rust-Leaderboard-API](https://github.com/MeremArt/Rust-Leaderboard-API.git) that includes:
 
-A blazing fast RESTful API for managing a game leaderboard built in **Rust** using **Actix-Web**, **MongoDB**, and **Tokio** runtime.
+- Project description
+- All endpoints (including newly added **Sign Up** & **Login**)
+- Environment setup
+- TLS notes
+- Build/run instructions
+- Example payloads
+
+---
+
+## 📘 `README.md` (Updated)
+
+````markdown
+# 🏆 Rust Leaderboard API
+
+A secure, fast, and extensible **Leaderboard API** built using **Actix Web**, **MongoDB**, and **JWT authentication**. Includes HTTPS support via `rustls`.
+
+---
 
 ## ✨ Features
 
 - ✅ Add player scores
-- ✅ Get all players
-- ✅ Get top N players sorted by score
-- ✅ Delete player by ID
-- ✅ MongoDB-backed persistence
-- ✅ Full JSON API
-- ✅ `.env` configuration
-- ✅ Modular service & route separation
+- 📊 Get top scores
+- 📋 Get all scores
+- ❌ Delete a score
+- 👤 User Sign Up & Login with password hashing (Argon2 via `argonautica`)
+- 🔐 JWT token-based authentication (HMAC-SHA256)
+- 🔒 HTTPS with `rustls`
+- 🌐 CORS-enabled for frontend access
 
 ---
 
-## 🚀 Tech Stack
+## 📦 Tech Stack
 
-- [Rust](https://www.rust-lang.org/)
-- [Actix-Web](https://actix.rs/)
-- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- [Tokio](https://tokio.rs/)
-- [Serde](https://serde.rs/)
-- [dotenvy](https://docs.rs/dotenvy/)
-
----
-
-## 📁 Project Structure
-```
-
-src/
-├── main.rs # App entry point
-├── models.rs # Data models
-├── routes.rs # Actix route handlers
-├── services.rs # Business logic
-├── state.rs # Shared MongoDB connection
-├── errors.rs # Central error handling
-.env # Environment variables
-
-````
+- Rust (2024 edition)
+- Actix Web
+- MongoDB (async)
+- JWT (`jwt`, `hmac`, `sha2`)
+- Argon2 password hashing (`argonautica`)
+- TLS via `rustls`
+- dotenv config support
 
 ---
 
-## 🧪 API Endpoints
+## 🚀 API Endpoints
 
-### ➕ Add a Player
-`POST /leaderboard`
+### 👤 Auth
+
+#### 🔐 POST `/signup`
+
+Register a new user.
+
 ```json
 {
-  "name": "Tim",
-  "score": 1500
+  "username": "alice",
+  "password": "secret123"
 }
+```
 ````
 
-### 📋 Get All Players
+#### 🔐 POST `/login`
 
-`GET /leaderboard`
+Authenticate user and get JWT token.
 
-### 🥇 Get Top N Players
+```json
+{
+  "username": "alice",
+  "password": "secret123"
+}
+```
 
-`GET /leaderboard/top/{count}`  
-Example: `/leaderboard/top/5`
+✅ Response:
 
-### ❌ Delete a Player
-
-`DELETE /leaderboard/{id}`
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
 ---
 
-## 🔧 Setup & Run
+### 🏆 Leaderboard
 
-### 1. 📦 Install Rust
+> ⚠️ All endpoints below are **public** by default, but can be protected with JWT middleware.
 
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+#### 📥 POST `/leaderboard`
+
+Add a new player score.
+
+```json
+{
+  "name": "bob",
+  "score": 950
+}
 ```
 
-### 2. 📁 Clone this repo
+#### 📤 GET `/leaderboard`
 
-```bash
-git clone https://github.com/your-username/leaderboard-api.git
-cd leaderboard-api
-```
+Fetch all players.
 
-### 3. 📄 Set environment variables
+#### 🥇 GET `/leaderboard/top/{count}`
 
-Create a `.env` file in the root:
+Get top N scores, e.g. `/leaderboard/top/5`
+
+#### ❌ DELETE `/leaderboard/{id}`
+
+Delete a player's score by MongoDB ObjectId.
+
+---
+
+## ⚙️ Environment Variables (`.env`)
 
 ```env
-MONGODB_URI=mongodb+srv://<username>:<password>@your-cluster.mongodb.net/?retryWrites=true&w=majority
+MONGO_URI=mongodb://localhost:27017
 MONGO_DB_NAME=leaderboard_db
-PORT=8080
+JWT_SECRET=super_secret_key
+PORT=8443
 ```
-
-⚠️ Make sure `.env` is in `.gitignore`!
 
 ---
 
-### 4. 🚀 Run the API
+## 🔐 TLS (HTTPS) Setup
+
+Generate self-signed certs (for local dev):
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+```
+
+Make sure `key.pem` and `cert.pem` are in the project root.
+
+---
+
+## 🛠️ Run the Project
 
 ```bash
 cargo run
 ```
 
-The server starts on: `http://localhost:8080`
+Or for hot reloading (with [cargo-watch](https://github.com/watchexec/cargo-watch)):
 
----
-
-## 🧠 Example Response
-
-```json
-[
-  {
-    "id": "65f1d0c3b0c1f1...",
-    "name": "Alice",
-    "score": 1400
-  },
-  {
-    "id": "65f1d0d5b0c1f2...",
-    "name": "Bob",
-    "score": 1300
-  }
-]
+```bash
+cargo watch -x run
 ```
 
 ---
 
-## ✅ Future Improvements
+## 📬 Example Requests (with `curl`)
 
-- 🔒 JWT Authentication
-- 🧾 Pagination support
-- 📊 Score history tracking
-- 🧪 Unit + integration tests
-- 🐳 Dockerized deployment
+### Sign Up
+
+```bash
+curl -X POST http://localhost:8443/signup \
+-H "Content-Type: application/json" \
+-d '{"username": "test", "password": "pass123"}'
+```
+
+### Login
+
+```bash
+curl -X POST http://localhost:8443/login \
+-H "Content-Type: application/json" \
+-d '{"username": "test", "password": "pass123"}'
+```
 
 ---
 
-## 🧑‍💻 Author
+## 🔒 Todo (Optional Enhancements)
 
-Built by [@ugofranklin22](https://github.com/ugofranklin22)  
-Open for feedback, contributions & collabs 🚀
+- [ ] Protect leaderboard routes with JWT middleware
+- [ ] Add role-based access
+- [ ] Add pagination
+- [ ] Add score update endpoint
+- [ ] Dockerize deployment
+- [ ] Unit & integration tests
 
 ---
 
-## 📜 License
+## 👨‍💻 Author
 
-MIT © 2025
+Developed by [MeremArt](https://github.com/MeremArt) using 💪 Rust, MongoDB & Actix.
+
+---
+
+## 📄 License
+
+MIT
 
 ```
+
 
 ```
