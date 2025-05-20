@@ -17,6 +17,8 @@ mod models;
 mod routes;
 mod error;
 mod services;
+mod auth;
+
 
 
 #[get("/")]

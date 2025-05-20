@@ -1,6 +1,6 @@
 
-use crate::models::{PlayerScore, NewScore};
-
+use crate::models::{NewScore, PlayerScore, UserSignup, User};
+use crate::auth::{hash_password};
 use crate::error::ApiError;
 use mongodb::bson::doc;
 
@@ -88,4 +88,37 @@ pub async fn get_top_players(
     }
 
     Ok(players)
+}
+
+pub async fn signup(
+    users:&Collection<User>,
+    signup: UserSignup,
+    jwt_secret: &str,
+) -> Result<(), ApiError> {
+
+    if signup.username.trim().is_empty() || signup.password.len() < 6 {
+        return Err(ApiError::BadRequest);
+    }
+
+    let exists = users
+    .find_one(doc! { "username": &signup.username }, None)
+    .await
+    .map_err(|_| ApiError::InternalError)?;
+      
+if exists.is_some() {
+    return Err(ApiError::BadRequest);
+}
+
+let password_hash = hash_password(&signup.password, jwt_secret)?;
+
+
+let user = User {
+    username: signup.username,
+    password_hash,
+    role: "user".to_string(),
+};
+
+users.insert_one(user,None).await .map_err(|_| ApiError::InternalError)?;
+
+Ok(())
 }
