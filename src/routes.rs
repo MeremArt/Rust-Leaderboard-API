@@ -1,5 +1,5 @@
 use actix_web::{get,post, delete,web,HttpResponse,Responder};
-use crate::{ models::{NewScore,UserSignup}, state::AppState, error::ApiError ,services};
+use crate::{ models::{NewScore,UserSignup,UserLogin}, state::AppState, error::ApiError ,services};
 
 
 #[get("/leaderboard")]
@@ -32,7 +32,7 @@ pub async fn login(
     data: web::Data<AppState>,
     creds: web::Json<UserLogin>,
 ) -> Result<impl Responder, ApiError> {
-    let token = services::auth::login(&data.users_collection, creds.into_inner(), &data.jwt_secret).await?;
+    let token = services::login(&data.users_collection, creds.into_inner(), &data.jwt_secret).await?;
     Ok(HttpResponse::Ok().json(serde_json::json!({ "token": token })))
 }
 
